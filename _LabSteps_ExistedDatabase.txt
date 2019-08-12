@@ -1,0 +1,262 @@
+Lab: 以既有的資料庫，建立 Laravel 架構的網站
+
+
+1.  開發環境與預習知識
+
+
+1.1 請依 setup.txt 完成安裝與設計。
+
+
+1.2 確定 MySQL 伺服器正在執行
+    <Hint> 請看 XAMPP Control Panel 關於 MySQL 的狀態
+
+
+1.3 在檔案總管，滑鼠右鍵點按例如 c:\Lab 資料夾
+    | 快捷功能表 Git Bach Here
+
+
+1.4 輸入下列指令，建立一個新的 Laravel 專案
+    laravel new existed
+
+
+1.5 在檔案總管，滑鼠右鍵點按 existed 資料夾 | Open with Code
+
+
+1.6 建議先完成下列三段練習:
+    _LabSteps_Controller.txt
+    _LabSteps_View.txt
+    _LabSteps_Database.txt
+
+
+1.7 利用 phpMyAdmin 之類的工具，執行下列 SQL 指令:
+
+CREATE DATABASE directory default character set utf8;
+
+USE directory;
+
+create table departments
+(
+  departmentId int primary key,
+  departmentName varchar(20)
+);
+
+insert into departments values (1, 'Corporate');
+insert into departments values (2, 'Engineering');
+insert into departments values (3, 'Sales');
+insert into departments values (4, 'Marketing');
+insert into departments values (5, 'Accounting');
+
+CREATE TABLE employees (
+  employeeId int not null primary key,
+  firstName varchar(30),
+  lastName varchar(30),
+  managerId int,
+  title varchar(45),
+  departmentId int,
+  officePhone varchar(45),
+  cellPhone varchar(45),
+  email varchar(45),
+  city varchar(45),
+  picture varchar(250)
+);
+
+alter table employees
+  add constraint fk_departments_employees
+  foreign key (departmentId) references departments(departmentId);
+
+INSERT INTO employees VALUES 
+  (12,'Steven','Wells',4,'Software Architect',2,'617-000-0012','781-000-0012','swells@fakemail.com','Boston, MA','steven_wells.jpg');
+INSERT INTO employees VALUES 
+  (11,'Amy','Jones',5,'Sales Representative',3,'617-000-0011','781-000-0011','ajones@fakemail.com','Boston, MA','amy_jones.jpg');
+INSERT INTO employees VALUES 
+  (10,'Kathleen','Byrne',5,'Sales Representative',3,'617-000-0010','781-000-0010','kbyrne@fakemail.com','Boston, MA','kathleen_byrne.jpg');
+INSERT INTO employees VALUES 
+  (9,'Gary','Donovan',2,'Marketing',4,'617-000-0009','781-000-0009','gdonovan@fakemail.com','Boston, MA','gary_donovan.jpg');
+INSERT INTO employees VALUES 
+  (8,'Lisa','Wong',2,'Marketing Manager',4,'617-000-0008','781-000-0008','lwong@fakemail.com','Boston, MA','lisa_wong.jpg');
+INSERT INTO employees VALUES 
+  (7,'Paula','Gates',4,'Software Architect',2,'617-000-0007','781-000-0007','pgates@fakemail.com','Boston, MA','paula_gates.jpg');
+INSERT INTO employees VALUES 
+  (5,'Ray','Moore',1,'VP of Sales',3,'617-000-0005','781-000-0005','rmoore@fakemail.com','Boston, MA','ray_moore.jpg');
+INSERT INTO employees VALUES 
+  (6,'Paul','Jones',4,'QA Manager',2,'617-000-0006','781-000-0006','pjones@fakemail.com','Boston, MA','paul_jones.jpg');
+INSERT INTO employees VALUES 
+  (3,'Eugene','Lee',1,'CFO',5,'617-000-0003','781-000-0003','elee@fakemail.com','Boston, MA','eugene_lee.jpg');
+INSERT INTO employees VALUES 
+  (4,'John','Williams',1,'VP of Engineering',2,'617-000-0004','781-000-0004','jwilliams@fakemail.com','Boston, MA','john_williams.jpg');
+INSERT INTO employees VALUES 
+  (2,'Julie','Taylor',1,'VP of Marketing',4,'617-000-0002','781-000-0002','jtaylor@fakemail.com','Boston, MA','julie_taylor.jpg');
+INSERT INTO employees VALUES 
+  (1,'James','King',0,'President and CEO',1,'617-000-0001','781-000-0001','jking@fakemail.com','Boston, MA','james_king.jpg');
+
+
+
+
+2.  以既有資料庫建立 Model
+
+
+2.1 編輯 .env 檔案，修改以下三個項目:
+
+DB_DATABASE=directory
+DB_USERNAME=root
+DB_PASSWORD=
+
+    <Note>
+    本例假設密碼為 XAMPP 預設的空白密碼
+
+
+2.2 Ctrl + ` 開啟新的終端機視窗，輸入下列指令:
+
+php artisan make:model Department
+php artisan make:model Employee
+
+  <Note>
+  如果 Model 的數量很多，
+  需要建立在 app\Http\Models 資料夾之下，指令改成:
+  php artisan make:model Http\Models\Employee
+
+
+2.3 修改 app\Employee.php
+    Employee 類別的內容改成這樣:
+
+class Employee extends Model
+{
+    protected $table = "employees";
+    protected $primaryKey = 'employeeId';
+
+    function department() {
+        return $this->hasOne(Department::class, 'departmentId');
+    }
+}
+
+
+2.4 修改 app\Department.php
+    Department 類別的內容改成這樣:
+class Department extends Model
+{
+    protected $table = "departments";
+    protected $primaryKey = 'departmentId';
+
+    function employees() {
+        return $this->hasMany(Employee::class, 'departmentId');
+    }
+}
+
+
+    <Note> 請研究一下:
+    1. 如何指定Model存取哪一個資料表?
+    2. 如何指定哪一個欄位是 primary key?
+    3. 程式如何設定「部門-員工」之間的一對多關聯關係
+
+
+
+
+3.  顯示資料
+
+
+3.1 編輯 routes\web.php，Route::get 那邊的程式改成:
+
+Route::get('/', "HomeController@index");
+
+
+3.2 在終端機視窗輸入:
+    php artisan make:controller HomeController
+
+
+3.3 編輯: app\Http\Controllers\HomeController.php
+    加寫下列兩行程式，參用 Department 與 Employee 兩個類別:
+
+use App\Department;
+use App\Employee;
+
+
+3.4 編輯: app\Http\Controllers\HomeController.php
+    加入下列函式到 HomeCtroller 類別之中:
+
+    function index() {
+        // $d = Department::find(1);
+        // return $d->departmentName;
+
+        // $d = Department::find(1)->employees();
+        // dd($d->first()->firstName);
+        
+        // $emp = Employee::find(1);
+        // dd($emp->firstName);
+
+        // $d = Employee::find(1)->department();
+        // dd($d->first()->departmentName);
+
+        $employeeList = Employee::all();
+        return view("home.index", compact('employeeList'));
+    }
+
+
+3.5 新建資料夾: resources\views\home
+
+
+3.6 新增檔案: resources\views\home\index.blade.php
+    內容如下:
+
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>Lab</title>
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<script src="scripts/jquery-1.9.1.min.js"></script>
+	<script src="scripts/jquery.mobile-1.3.2.min.js"></script>
+	<link rel="stylesheet" href="scripts/jquery.mobile-1.3.2.min.css" />
+	<link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+<div data-role="page" data-theme="c">
+
+<div data-role="header">
+	<h1>Employee Details</h1>
+</div>
+
+<div data-role="content">
+	<ul data-role="listview" data-filter="true">
+
+	@foreach ($employeeList as $emp)
+		<li>
+		<a href="employeeDetails.html?id=1" data-ajax="false"> 
+			<img src="images/{{ $emp->picture }}">
+			<h4>{{ $emp->firstName }} {{ $emp->lastName }}</h4>
+			<p>{{ $emp->title }}</p>
+			<p>{{ $emp->department["departmentName"] }}</p>
+		</a>
+		</li>
+	@endforeach
+
+
+	</ul>
+</div>
+
+</div>
+</body>
+
+</html>
+
+
+    <Note>
+    Lab_Employee\Design\EmplyeeList.html 有上述 html 
+    的原始設計，請挑戰看看自己動手做出來。
+
+
+3.7 用檔案總管，將課程素材 Lab_Employee\Design 
+    資料夾的下列兩個目錄，
+    複製貼到本專案的 public 資料夾 (c:\lab\existed\public)
+
+
+3.8 終端機視窗，輸入下列指令以啟動 Web 伺服器:
+php artisan serve
+
+
+3.9 以瀏覽器連接 http://127.0.0.1:8000
+
+    <Note>
+    一切順利的話，應該出現動態生成的員工清單
+

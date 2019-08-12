@@ -1,0 +1,59 @@
+
+__________________________________________________
+setup DB
+
+create table tickets (
+  id int auto_increment primary key,
+  title varchar(50),
+  amount int
+);
+
+insert into tickets (title, amount) values ('Love Song 1990', 1000);
+
+select * from tickets;
+
+
+
+__________________________________________________
+routes\web.php
+
+Route::get('/', 'TicketsController@index');
+Route::post('/ticket/buy', 'TicketsController@buy');
+
+
+
+__________________________________________________
+app\Http\Controllers\TicketsController.php
+
+use App\Ticket;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+...
+    function index() {
+        $amount = Ticket::find(1)->amount;
+        return view("ticket.index", compact('amount'));
+    }
+
+    function buy() {
+        DB::beginTransaction();
+        $ticket = Ticket::find(1)->lockForUpdate()->first();
+        // $ticket = Ticket::find(1);
+        $ticket->amount -= 1;
+        sleep(5);
+        $ticket->save();
+        DB::commit();
+        return $ticket->amount;
+    }
+
+
+__________________________________________________
+C:\xampp\apache\conf\extra\httpd-vhosts.conf
+
+LISTEN 8000
+<VirtualHost *:8000>
+    DocumentRoot "C:\xampp\htdocs\ticket\public"
+</VirtualHost>
+
+
+
+

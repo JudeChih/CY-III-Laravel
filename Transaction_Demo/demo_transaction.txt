@@ -1,0 +1,210 @@
+mysql> use northwind;
+Database changed
+mysql> start transaction;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select productID, UnitPrice from products where productID = 1;
++-----------+-----------+
+| productID | UnitPrice |
++-----------+-----------+
+|         1 |  232.0000 |
++-----------+-----------+
+1 row in set (0.01 sec)
+
+mysql> update products set UnitPrice = 11 where productId = 1;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select productID, UnitPrice from products where productID = 1;
++-----------+-----------+
+| productID | UnitPrice |
++-----------+-----------+
+|         1 |   11.0000 |
++-----------+-----------+
+1 row in set (0.00 sec)
+
+mysql> commit;
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> update products set UnitPrice = 11 where productId = 1;
+Query OK, 0 rows affected (0.14 sec)
+Rows matched: 1  Changed: 0  Warnings: 0
+
+mysql> select productID, UnitPrice from products where productID = 1;
++-----------+-----------+
+| productID | UnitPrice |
++-----------+-----------+
+|         1 |   11.0000 |
++-----------+-----------+
+1 row in set (0.00 sec)
+
+mysql> start transaction;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select productID, UnitPrice from products where productID = 1;
++-----------+-----------+
+| productID | UnitPrice |
++-----------+-----------+
+|         1 |   11.0000 |
++-----------+-----------+
+1 row in set (0.00 sec)
+
+mysql> update products set UnitPrice = 15 where productId = 1;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select productID, UnitPrice from products where productID = 1;
++-----------+-----------+
+| productID | UnitPrice |
++-----------+-----------+
+|         1 |   15.0000 |
++-----------+-----------+
+1 row in set (0.00 sec)
+
+mysql> rollback;
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> select productID, UnitPrice from products where productID = 1;
++-----------+-----------+
+| productID | UnitPrice |
++-----------+-----------+
+|         1 |   11.0000 |
++-----------+-----------+
+1 row in set (0.00 sec)
+
+mysql> start transaction;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> start transaction;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> update products set UnitPrice = 11 where productId = 1;
+Query OK, 0 rows affected (0.00 sec)
+Rows matched: 1  Changed: 0  Warnings: 0
+
+mysql> update products set UnitPrice = 12\ where productId = 1;
+ERROR:
+Unknown command '\ '.
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that
+corresponds to your MySQL server version for the right syntax to use near '\ whe
+re productId = 1' at line 1
+mysql> update products set UnitPrice = 12 where productId = 1;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> commit;
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> rollback;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select productID, UnitPrice from products where productID = 1;
++-----------+-----------+
+| productID | UnitPrice |
++-----------+-----------+
+|         1 |   12.0000 |
++-----------+-----------+
+1 row in set (0.00 sec)
+
+mysql> commit;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> commit;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> commit;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> commit;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> update products set UnitPrice = 123 where productId = 1;
+Query OK, 1 row affected (0.06 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> rollback;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select productID, UnitPrice from products where productID = 1;
++-----------+-----------+
+| productID | UnitPrice |
++-----------+-----------+
+|         1 |  123.0000 |
++-----------+-----------+
+1 row in set (0.00 sec)
+
+mysql> rollback;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select productID, UnitPrice from products where productID = 1;
++-----------+-----------+
+| productID | UnitPrice |
++-----------+-----------+
+|         1 |  123.0000 |
++-----------+-----------+
+1 row in set (0.00 sec)
+
+mysql> show variables like 'auto%';
++--------------------------+-------+
+| Variable_name            | Value |
++--------------------------+-------+
+| auto_increment_increment | 1     |
+| auto_increment_offset    | 1     |
+| autocommit               | ON    |
+| automatic_sp_privileges  | ON    |
++--------------------------+-------+
+4 rows in set (0.00 sec)
+
+mysql> set autocommit = 0
+    -> ;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> show variables like 'auto%';
++--------------------------+-------+
+| Variable_name            | Value |
++--------------------------+-------+
+| auto_increment_increment | 1     |
+| auto_increment_offset    | 1     |
+| autocommit               | OFF   |
+| automatic_sp_privileges  | ON    |
++--------------------------+-------+
+4 rows in set (0.00 sec)
+
+mysql> update products set UnitPrice = 100 where productId = 1;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select productID, UnitPrice from products where productID = 1;
++-----------+-----------+
+| productID | UnitPrice |
++-----------+-----------+
+|         1 |  100.0000 |
++-----------+-----------+
+1 row in set (0.00 sec)
+
+mysql> rollback;
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> select productID, UnitPrice from products where productID = 1;
++-----------+-----------+
+| productID | UnitPrice |
++-----------+-----------+
+|         1 |  123.0000 |
++-----------+-----------+
+1 row in set (0.00 sec)
+
+mysql> set autocommit = 1;\
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> show variables like 'auto%';
++--------------------------+-------+
+| Variable_name            | Value |
++--------------------------+-------+
+| auto_increment_increment | 1     |
+| auto_increment_offset    | 1     |
+| autocommit               | ON    |
+| automatic_sp_privileges  | ON    |
++--------------------------+-------+
+4 rows in set (0.00 sec)
+
+mysql>

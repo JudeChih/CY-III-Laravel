@@ -1,0 +1,507 @@
+Lab: Laravel 資料庫程式設計
+
+
+1.  開發環境與預習知識
+
+
+1.1 請依 setup.txt 完成安裝與設計。
+
+
+1.2 確定 MySQL 伺服器正在執行
+    <Hint> XAMPP Control Panel
+
+
+1.3 在檔案總管，滑鼠右鍵點按例如 c:\Lab 資料夾
+    | 快捷功能表 Git Bach Here
+
+
+1.4 輸入下列指令，建立一個新的 Laravel 專案
+    laravel new blog
+
+
+1.5 在檔案總管，滑鼠右鍵點按 blog 資料夾 | Open with Code
+
+
+1.6 建議先完成下列兩段練習:
+    _LabSteps_Controller.txt
+    _LabSteps_View.txt
+
+
+1.7 閱讀下列參考資料，
+    https://laravel.tw/docs/5.2/controllers#restful-resource-controllers
+
+    <Note>
+    請務必看過「由資源控制器處理的行為」這節的表格
+
+
+
+
+2.  以 Migration 設定資料庫結構
+
+
+2.1 編輯 .env 檔案，修改以下三個項目:
+
+DB_DATABASE=test
+DB_USERNAME=root
+DB_PASSWORD=
+
+    <Note>
+    本例假設新資料表將建立於 test 資料庫，
+    密碼為 XAMPP 預設的空白密碼
+
+
+2.2 Ctrl + ` 開啟新的終端機視窗，輸入下列指令:
+
+    php artisan make:model Employee -m
+
+
+2.3 檢視下列兩個檔案的內容:
+    database\migrations\yyyy_mm_dd_time_create_employees_table.php
+    app\Employee.php
+
+
+2.4 修改 database\migrations\yyyy_mm_dd_time_create_employees_table.php
+    針對 up() 函式，改成:
+    
+    public function up()
+    {
+        Schema::create('employees', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('firstName');
+            $table->string('lastName');
+            $table->timestamps();
+        });
+    }
+
+
+2.5 在終端機視窗執行下列指令:
+    php artisan migrate
+
+
+2.6 以 PhpMyAdmin 之類的工具，
+    確認 test 資料庫有 employees 資料表
+
+
+2.7 在終端機視窗輸入下列指令以啟動 tinker 工具程式:
+    php artisan tinker
+
+
+2.8 依序繼續輸入下列指令:
+
+1 + 2
+DB::table('employees')->insert(['firstName' => 'Jeremy', 'lastName' => 'Lin', 'created_at' => new Datetime, 'updated_at' => new Datetime ])
+DB::table('employees')->insert(['firstName' => 'Derek', 'lastName' => 'Jeter', 'created_at' => new Datetime, 'updated_at' => new Datetime ])
+DB::table('employees')->insert(['firstName' => 'Lionel', 'lastName' => 'Messi', 'created_at' => new Datetime, 'updated_at' => new Datetime ])
+DB::table('employees')->insert(['firstName' => 'test', 'lastName' => 'test', 'created_at' => new Datetime, 'updated_at' => new Datetime ])
+
+DB::table('employees')->get();
+DB::table('employees')->find(1)
+DB::table('employees')->where('lastName', 'test')->first()
+DB::table('employees')->where('lastName', 'test')->delete()
+
+App\Employee::all();
+App\Employee::find(1);
+
+exit
+
+
+2.9 以 PhpMyAdmin 之類的工具，
+    檢視一下 test 資料庫 employees 資料表的內容
+
+
+
+
+3.  條列員工清單
+
+
+3.1 編輯 routes\web.php，
+    將最後一段 Route::get 的程式改成:
+
+Route::get('/', 'EmployeesController@index');
+Route::resource('employees', 'EmployeesController');
+
+
+3.2 編輯 app\Http\Controllers\EmployeesController.php
+    參用 Employee 類別，也就是:
+
+    use App\Employee;
+
+
+3.3 編輯 app\Http\Controllers\EmployeesController.php
+    修改 index() 的程式:
+
+    function index() {
+        $employeeList = Employee::all();
+        return view('employees.index', compact('employeeList'));
+    }
+
+
+3.4 建立資料夾: resources\views\employees
+
+
+3.5 建立檔案: resources\views\employees\index.blade.php
+    內容如下:
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Employee</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <h2>Employee List <a href="/employees/create" class="btn btn-md btn-success pull-right"><span class="glyphicon glyphicon-plus"></span> 新增</a></h2>
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>Firstname</th>
+        <th>Lastname</th>
+        <th>&nbsp;</th>
+      </tr>
+    </thead>
+    <tbody>
+
+    <tr>
+        <td>firstName1</td>
+        <td>lastName1</td>
+        <td>
+            <span class="pull-right">
+                <form method="post" action="/employees/1"> 
+                    <a href="/employees/1/edit" class="btn btn-xs btn-info"><span class="glyphicon glyphicon-pencil"></span> 修改</a> | 
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-remove"></span> 刪除</button>
+                </form>
+            </span>
+        </td>
+    </tr>
+    
+    <tr>
+        <td>firstName2</td>
+        <td>lastName2</td>
+        <td>
+            <span class="pull-right">
+                <form method="post" action="/employees/2"> 
+                    <a href="/employees/2/edit" class="btn btn-xs btn-info"><span class="glyphicon glyphicon-pencil"></span> 修改</a> | 
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-remove"></span> 刪除</button>
+                </form>
+            </span>
+        </td>
+    </tr>
+
+    <tr>
+        <td>firstName3</td>
+        <td>lastName3</td>
+        <td>
+            <span class="pull-right">
+                <form method="post" action="/employees/3"> 
+                    <a href="/employees/3/edit" class="btn btn-xs btn-info"><span class="glyphicon glyphicon-pencil"></span> 修改</a> | 
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-remove"></span> 刪除</button>
+                </form>
+            </span>
+        </td>
+    </tr>
+
+
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>
+
+
+3.6 終端機視窗，輸入下列指令以啟動 Web 伺服器:
+php artisan serve
+
+
+3.7 以瀏覽器連接 http://127.0.0.1:8000/lab
+
+    <Note>
+    一切順利的話，應該出現靜態網頁版本的員工清單
+
+
+3.8 修改 resources\views\employees\index.blade.php
+    將 tbody 的內容改成:
+
+    <tbody>
+
+    @foreach ($employeeList as $emp)
+    <tr>
+        <td>{{$emp->firstName}}</td>
+        <td>{{$emp->lastName}}</td>
+        <td>
+            <span class="pull-right">
+                <form method="post" action="/employees/{{$emp->id}}"> 
+                    <a href="/employees/{{$emp->id}}/edit" class="btn btn-xs btn-info"><span class="glyphicon glyphicon-pencil"></span> 修改</a> | 
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-remove"></span> 刪除</button>
+                </form>
+            </span>
+        </td>
+    </tr>
+    @endforeach
+
+    </tbody>
+
+
+3.9 瀏覽器重新整理 http://127.0.0.1:8000/lab
+
+    <Note>
+    一切順利的話，應該出現程式動態生成的員工清單
+
+
+
+
+4.  新增員工資料
+
+
+4.1 修改 app\Http\Controllers\EmployeesController.php
+    變更 create() 的程式如下:
+
+    public function create()
+    {
+        return view("employees.create");
+    }
+
+
+4.2 新增檔案: resources\views\employees\create.blade.php
+    內容如下:
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Employee</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+
+<form class="form-horizontal">
+<fieldset>
+
+<!-- Form Name -->
+<legend>Emplyee Data</legend>
+
+<!-- Text input-->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="firstName">First Name:</label>  
+  <div class="col-md-4">
+  <input id="firstName" name="firstName" type="text" placeholder="" class="form-control input-md">
+    
+  </div>
+</div>
+
+<!-- Text input-->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="lastName">Last Name:</label>  
+  <div class="col-md-4">
+  <input id="lastName" name="lastName" type="text" placeholder="" class="form-control input-md">
+    
+  </div>
+</div>
+
+<!-- Button (Double) -->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="okOrCancel"></label>
+  <div class="col-md-8">
+    <button id="okOrCancel" name="okOrCancel" class="btn btn-success">OK</button>
+    <button id="okOrCancel" name="okOrCancel" class="btn btn-danger">Cancel</button>
+  </div>
+</div>
+
+</fieldset>
+</form>
+
+
+</div>
+
+</body>
+</html>
+
+    <Note>
+    推廌一個好用的 Bootstrap 表單產生器:
+    https://bootsnipp.com/forms
+
+
+4.3 修改 resources\views\employees\create.blade.php
+    將 <form class="form-horizontal">
+    改成:
+
+    <form method="post" action="/employees" class="form-horizontal">
+    @csrf
+
+
+4.4 修改 resources\views\employees\create.blade.php
+    針對 OK 與 Cancel 按鈕都加上 type="submit" 屬性，如下:
+
+    <button type="submit" id="okOrCancel" name="okOrCancel" class="btn btn-success">OK</button>
+    <button type="submit" id="okOrCancel" name="okOrCancel" class="btn btn-danger">Cancel</button>
+
+
+4.5 修改 app\Http\Controllers\EmployeesController.php
+    針對 store() 改成:
+
+    public function store(Request $request)
+    {
+        $emp = new Employee();
+        $emp->firstName = $request->firstName;
+        $emp->lastName = $request->lastName;
+        $emp->save();
+        return redirect("/employees");
+    }
+
+
+4.6 在瀏覽器測試員工資料的新增功能
+
+
+
+
+5.  修改員工資料
+
+
+5.1 修改 app\Http\Controllers\EmployeesController.php
+    變更 edit() 的程式如下:
+
+    public function edit($id)
+    {
+        $emp = Employee::find($id);
+        return view('employees.edit', compact('emp'));
+    }
+
+
+5.2 新增檔案: resources\views\employees\edit.blade.php
+    內容如下:
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Employee</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+
+<form class="form-horizontal">
+<fieldset>
+
+<!-- Form Name -->
+<legend>Emplyee Data</legend>
+
+<!-- Text input-->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="firstName">First Name:</label>  
+  <div class="col-md-4">
+  <input id="firstName" name="firstName" type="text" placeholder="" class="form-control input-md">
+    
+  </div>
+</div>
+
+<!-- Text input-->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="lastName">Last Name:</label>  
+  <div class="col-md-4">
+  <input id="lastName" name="lastName" type="text" placeholder="" class="form-control input-md">
+    
+  </div>
+</div>
+
+<!-- Button (Double) -->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="okOrCancel"></label>
+  <div class="col-md-8">
+    <button id="okOrCancel" name="okOrCancel" class="btn btn-success">OK</button>
+    <button id="okOrCancel" name="okOrCancel" class="btn btn-danger">Cancel</button>
+  </div>
+</div>
+
+</fieldset>
+</form>
+
+
+</div>
+
+</body>
+</html>
+
+
+5.3 修改 resources\views\employees\edit.blade.php
+    針對 <form> 開始標籤那邊，改成這樣:
+
+<form method="post" action="/employees/{{ $emp->id }}" class="form-horizontal">
+@csrf
+@method('PUT')
+
+
+5.4 修改 resources\views\employees\edit.blade.php
+    針對 firstName 文字輸入方塊，代入 $emp->firstName 屬性值:
+
+    <input id="firstName" name="firstName" value="{{ $emp->firstName }}" type="text" placeholder="" class="form-control input-md">
+
+
+5.5 修改 resources\views\employees\edit.blade.php
+    針對 lastName 文字輸入方塊，代入 $emp->lastName 屬性值:
+
+    <input id="lastName" name="lastName" value="{{ $emp->lastName }}" type="text" placeholder="" class="form-control input-md">
+
+
+5.6 修改 resources\views\employees\edit.blade.php
+    針對 OK 與 Cancel 按鈕都加上 type="submit" 屬性，如下:
+
+    <button type="submit" id="okOrCancel" name="okOrCancel" class="btn btn-success">OK</button>
+    <button type="submit" id="okOrCancel" name="okOrCancel" class="btn btn-danger">Cancel</button>
+
+
+5.7 修改 app\Http\Controllers\EmployeesController.php
+    修改 update() 函式:
+
+    public function update(Request $request, $id)
+    {
+        $emp = Employee::find($id);
+        $emp->firstName = $request->firstName;
+        $emp->lastName = $request->lastName;
+        $emp->save();
+        return redirect("/employees");
+    }
+
+
+5.8 在瀏覽器測試員工資料的修改功能
+
+
+
+
+6.  刪除員工資料
+
+6.1 修改 app\Http\Controllers\EmployeesController.php
+    修改 destroy() 函式:
+
+    public function destroy($id)
+    {
+        $emp = Employee::find($id);
+        $emp->delete();
+        return redirect("/employees");
+    }
+
+
+6.2 在瀏覽器測試員工資料的刪除功能
+

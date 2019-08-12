@@ -1,0 +1,67 @@
+mysql> use northwind;
+Database changed
+mysql> set session transaction isolation level read committed;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> start transaction;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select productid, unitprice from products where productid = 1;
++-----------+-----------+
+| productid | unitprice |
++-----------+-----------+
+|         1 |  123.0000 |
++-----------+-----------+
+1 row in set (0.02 sec)
+
+mysql> select productid, unitprice from products where productid = 1;
++-----------+-----------+
+| productid | unitprice |
++-----------+-----------+
+|         1 |  123.0000 |
++-----------+-----------+
+1 row in set (0.00 sec)
+
+mysql> select productid, unitprice from products where productid = 1;
++-----------+-----------+
+| productid | unitprice |
++-----------+-----------+
+|         1 |  123.0000 |
++-----------+-----------+
+1 row in set (0.00 sec)
+
+mysql> select productid, unitprice from products where productid = 1;
++-----------+-----------+
+| productid | unitprice |
++-----------+-----------+
+|         1 |  123.0000 |
++-----------+-----------+
+1 row in set (0.00 sec)
+
+mysql> select productid, unitprice from products where productid = 1;
++-----------+-----------+
+| productid | unitprice |
++-----------+-----------+
+|         1 |  200.0000 |
++-----------+-----------+
+1 row in set (0.00 sec)
+
+mysql> commit;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> start transaction;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select productid, unitprice from products where productid = 1 lock in sha
+re mode;
+ERROR 1205 (HY000): Lock wait timeout exceeded; try restarting transaction
+mysql> select productid, unitprice from products where productid = 1 lock in sha
+re mode;
++-----------+-----------+
+| productid | unitprice |
++-----------+-----------+
+|         1 |  201.0000 |
++-----------+-----------+
+1 row in set (13.09 sec)
+
+mysql>

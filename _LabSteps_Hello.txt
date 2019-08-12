@@ -1,0 +1,239 @@
+Lab: Laravel 入門，Hello! Laravel
+
+
+1.  建立開發環境
+
+
+1.0 請依 setup.txt 完成安裝與設計。
+
+
+1.1 在檔案總管，滑鼠右鍵點按例如 c:\Lab 資料夾
+    | 快捷功能表 Git Bach Here
+
+
+1.2 輸入下列指令，建立一個新的 Laravel 專案
+    laravel new hello
+
+
+1.3 在檔案總管，滑鼠右鍵點按 hello 資料夾 | Open with Code
+
+
+
+
+2.  與 Laravel 打個招呼
+
+
+2.1 編輯 routes\web.php
+
+原本的程式:
+Route::get('/', function () {
+    return view('welcome');
+});
+
+改成:
+Route::get('/', function () {
+    return "Hello! Laravel";
+});
+
+
+2.2 Ctrl + ` 開啟終端機視窗，
+    輸入下列指令以啟動 Web 伺服器:
+    php artisan serve
+
+
+2.3 以瀏覽器連接 http://127.0.0.1:8000
+
+<Note> 正常的話，應該出現 Hello! Laravel 字樣
+
+
+
+
+3.  輸出 HTML 到瀏覽器
+
+
+3.1 編輯 routes\web.php，Route::get 那邊的程式再改成:
+
+Route::get('/', function () {
+    return view('index');
+});
+
+
+3.2 在瀏覽器重新整理 http://127.0.0.1:8000/
+
+    <Note>
+    出現錯訊訊息:
+    View [index] not found.
+
+
+3.3 建立一個新的 php 檔案，相對路徑與檔名:
+    resources\views\index.blade.php
+    內容如下:
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Welcome</title>
+</head>
+<body>
+    <h1>Hello Laravel</h1>
+</body>
+</html>
+
+
+3.4 在瀏覽器重新整理 http://127.0.0.1:8000/
+    <Note> 又可順利看到 Hello Laravel 文字
+
+
+3.5 建立新資料夾: resources\views\home
+
+
+3.6 將 index.blade.php 搬進新的
+    resources\views\home 資料夾
+
+
+3.7 在瀏覽器重新整理 http://127.0.0.1:8000/
+
+    <Note>
+    出現錯訊訊息:
+    View [index] not found.
+
+
+3.8 編輯 routes\web.php，Route::get 那邊的程式再改成:
+Route::get('/', function () {
+    return view('home.index');
+});
+
+
+3.9 在瀏覽器重新整理 http://127.0.0.1:8000/
+    <Note> 又可順利看到 Hello Laravel 文字
+
+
+
+
+4.  使用控制器回應瀏覽器的 get 請求
+
+
+4.1 編輯 routes\web.php，Route::get 那邊的程式再改成:
+
+Route::get('/', "HomeController@index");
+
+
+4.2 在瀏覽器重新整理 http://127.0.0.1:8000/
+
+    <Note>
+    出現錯誤訊息:
+    Class App\Http\Controllers\HomeController does not exist
+
+
+4.3 在終端機視窗，組合鍵 Ctrl + C 中斷 Web 伺服器
+    輸入下列指令以建立控制器:
+    php artisan make:controller HomeController
+
+
+4.4 編輯: app\Http\Controllers\HomeController.php
+    加入下列函式到 HomeCtroller 類別之中:
+
+    function index() {
+        return view('home.index');
+    }
+
+
+4.5 輸入下列指令以啟動 Web 伺服器:
+    php artisan serve
+
+
+4.6 在瀏覽器重新整理 http://127.0.0.1:8000/
+
+
+4.7 修改 resources\views\home\index.blade.php，
+    加入一個表單，新的 HTML 內容如下:
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Welcome</title>
+</head>
+<body>
+    <h1>Hello</h1>
+    <form method="post" action="/hello">
+        @csrf
+        Your name: 
+        <input type="text" name="userName">
+        <input type="submit" value="OK">
+    </form>
+</body>
+</html>
+
+
+4.8 在瀏覽器重新整理 http://127.0.0.1:8000/
+    輸入你的名字後，點按「OK」按鈕，
+    結果出現 404 Not Found
+
+
+
+
+5.  處理瀏覽器 post 過來的表單資料
+
+
+5.1 修改 routes\web.php，加寫下列程式:
+
+    Route::post('/hello', "HomeController@sayHello");
+
+
+5.2 修改 app\Http\Controllers\HomeController.php，
+    加入一個新的函式:
+
+    function sayHello(Request $request) {
+        // dd($request);
+        // dd($request->input("userName"));
+        // dd($request->userName);
+        return "Hello! " . $request->userName;
+    }
+
+
+5.3 在瀏覽器重新整理 http://127.0.0.1:8000/
+    輸入你的名字後，點按「OK」按鈕，
+    這次應該會出現 Hello! 人名
+
+
+
+
+6.  傳送資料到 View (視圖/檢視)
+
+
+6.1 新增一個檔案: resources\views\home\hello.blade.php
+    內容如下:
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Hello! {{ $who }} </h1>
+</body>
+</html>
+
+
+6.2 修改 app\Http\Controllers\HomeController.php
+    針對 sayHello() 函式，改成這樣:
+
+    function sayHello(Request $request) {
+        // return view("home.hello", 
+        //     [ "who" => $request->userName ]);
+        return view("home.hello")->withWho($request->userName);
+    }
+
+
+6.3 在瀏覽器重新整理 http://127.0.0.1:8000/
+    輸入你的名字後，點按「OK」按鈕測試程式。
+

@@ -1,0 +1,6 @@
+﻿課堂練習:
+
+1. 改用 Laravel MVC 架構
+
+2. 狀態資訊請改用 Session 而非 Cookie
+
