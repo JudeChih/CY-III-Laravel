@@ -1,0 +1,40 @@
+/*!
+ * Start Bootstrap - Blog Home (https://startbootstrap.com/template-overviews/blog-home)
+ * Copyright 2013-2019 Start Bootstrap
+ * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap-blog-home/blob/master/LICENSE)
+ */
+body {
+  padding-top: 56px;
+}
+
+.toby-body,.toby_footer{
+  position: relative;
+}
+
+.toby-body .card-title{
+  margin-bottom: 0;
+}
+
+.toby-body a.btn_detail{
+  position: absolute;
+  top:20px;
+  right: 20px;
+}
+
+.toby_footer a.btn_modify{
+  position: absolute;
+  top:5px;
+  right: 20px;
+}
+
+.toby_footer a.btn_delete{
+  position: absolute;
+  top:5px;
+  right: 133px;
+}
+
+.btn_create{
+  position: absolute;
+  top: 30px;
+  right: 16px;
+}
